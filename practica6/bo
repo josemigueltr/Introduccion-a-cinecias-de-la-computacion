@@ -1,0 +1,99 @@
+[migueltr@vl25h114 icc]$ cd
+[migueltr@vl25h114 ~]$ cd Documentos/practicasicc/practica6
+[migueltr@vl25h114 practica6]$ ant test
+Buildfile: /home/migueltr/Documentos/practicasicc/practica6/build.xml
+
+compile.practica6:
+
+test:
+    [junit] Running mx.unam.ciencias.icc.test.TestBaseDeDatosEstudiantes
+    [junit] Testsuite: mx.unam.ciencias.icc.test.TestBaseDeDatosEstudiantes
+    [junit] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.137 sec
+    [junit] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.137 sec
+    [junit] 
+    [junit] Testcase: testCarga took 0.046 sec
+    [junit] Testcase: testAgregaRegistro took 0.008 sec
+    [junit] Testcase: testEliminaRegistro took 0.005 sec
+    [junit] Testcase: testCreaRegistro took 0.001 sec
+    [junit] Testcase: testGetNumRegistros took 0.001 sec
+    [junit] Testcase: testGetRegistros took 0.001 sec
+    [junit] Testcase: testBuscaRegistros took 0.015 sec
+    [junit] Testcase: testGuarda took 0.011 sec
+    [junit] Testcase: testLimpia took 0.001 sec
+    [junit] Testcase: testConstructor took 0.001 sec
+    [junit] Running mx.unam.ciencias.icc.test.TestCampoEstudiante
+    [junit] Testsuite: mx.unam.ciencias.icc.test.TestCampoEstudiante
+    [junit] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 sec
+    [junit] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.045 sec
+    [junit] 
+    [junit] Testcase: testToString took 0.01 sec
+    [junit] Running mx.unam.ciencias.icc.test.TestEstudiante
+    [junit] Testsuite: mx.unam.ciencias.icc.test.TestEstudiante
+    [junit] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.101 sec
+    [junit] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.101 sec
+    [junit] 
+    [junit] Testcase: testCarga took 0.018 sec
+    [junit] Testcase: testCaza took 0.005 sec
+    [junit] Testcase: testToString took 0.004 sec
+    [junit] Testcase: testGetEdad took 0.002 sec
+    [junit] Testcase: testSetPromedio took 0.001 sec
+    [junit] Testcase: testGetPromedio took 0.001 sec
+    [junit] Testcase: testSetCuenta took 0.001 sec
+    [junit] Testcase: testGetCuenta took 0 sec
+    [junit] Testcase: testSetNombre took 0.001 sec
+    [junit] Testcase: testEquals took 0 sec
+    [junit] Testcase: testGetNombre took 0.001 sec
+    [junit] Testcase: testGuarda took 0.003 sec
+    [junit] Testcase: testSetEdad took 0.001 sec
+    [junit] Testcase: testConstructor took 0.002 sec
+    [junit] Running mx.unam.ciencias.icc.test.TestLista
+    [junit] Testsuite: mx.unam.ciencias.icc.test.TestLista
+    [junit] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.196 sec
+    [junit] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.196 sec
+    [junit] 
+    [junit] Testcase: testAgregaFinal took 0.013 sec
+    [junit] Testcase: testElimina took 0.01 sec
+    [junit] Testcase: testEsVacia took 0.001 sec
+    [junit] Testcase: testEliminaPrimero took 0.002 sec
+    [junit] Testcase: testGet took 0.002 sec
+    [junit] Testcase: testAgregaInicio took 0.006 sec
+    [junit] Testcase: testCopia took 0.005 sec
+    [junit] Testcase: testToString took 0.003 sec
+    [junit] Testcase: testGetLongitud took 0.001 sec
+    [junit] Testcase: testGetRabo took 0.001 sec
+    [junit] Testcase: testEliminaUltimo took 0.001 sec
+    [junit] Testcase: testGetPrimero took 0.001 sec
+    [junit] Testcase: testContiene took 0.001 sec
+    [junit] Testcase: testReversa took 0.002 sec
+    [junit] Testcase: testIndiceDe took 0.001 sec
+    [junit] Testcase: testGetCabeza took 0.001 sec
+<<<<<<<<<<dddd    [junit] Testcase: testEquals took 0.001 sec
+    [junit] Testcase: testLimpia took 0.004 sec
+    [junit] Testcase: testGetUltimo took 0.002 sec
+    [junit] Testcase: testInserta took 0.076 sec
+    [junit] Testcase: testConstructor took 0.001 sec
+
+BUILD SUCCESSFUL
+Total time: 4 seco
+[migueltr@vl25h114 practica6]$ Total time: 4 seco
+[migueltr@vl25h114 practica6]$ 
+bash: Total: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: [migueltr@vl25h114: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ <<<<<<<<<<dddd    [junit] Testcase: testEquals took 0.001 sec
+    [junit] Testcase: testLimpia took 0.004 sec
+    [junit] Testcase: testGetUltimo took 0.002 sec
+    [junit] Testcase: testInserta took 0.076 sec
+    [junit] Testcase: testConstructor took 0.001 sec
+
+BUILD SUCCESSFUL
+Total time: 4 seco
+[migueltr@vl25h114 practica6]$ 
+bash: error sintáctico cerca del elemento inesperado `<<<'
+[migueltr@vl25h114 practica6]$ bash: [junit]: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: [junit]: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: [junit]: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: [junit]: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ [migueltr@vl25h114 practica6]$ bash: BUILD: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: Total: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ bash: [migueltr@vl25h114: no se encontró la orden...
+[migueltr@vl25h114 practica6]$ ant test

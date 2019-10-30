@@ -1,0 +1,1357 @@
+diff --git a/src/mx/unam/ciencias/icc/BaseDeDatos.java b/src/mx/unam/ciencias/icc/BaseDeDatos.java
+index 346646a..6c20642 100644
+--- a/src/mx/unam/ciencias/icc/BaseDeDatos.java
++++ b/src/mx/unam/ciencias/icc/BaseDeDatos.java
+@@ -20,92 +20,123 @@ import java.io.IOException;
+  */
+ public abstract class BaseDeDatos<R extends Registro<C>, C extends Enum> {
+ 
+-    /* Lista de registros en la base de datos. */
+-    private Lista<R> registros;
++/* Lista de registros en la base de datos. */
++private Lista<R> registros;
+ 
+-    /**
+-     * Constructor único.
+-     */
+-    public BaseDeDatos() {
+-        // Aquí va su código.
+-    }
++/**
++ * Constructor único.
++ */
++public BaseDeDatos() {
++        this.registros= new Lista<R>();
++}
+ 
+-    /**
+-     * Regresa el número de registros en la base de datos.
+-     * @return el número de registros en la base de datos.
+-     */
+-    public int getNumRegistros() {
+-        // Aquí va su código.
+-    }
++/**
++ * Regresa el número de registros en la base de datos.
++ * @return el número de registros en la base de datos.
++ */
++public int getNumRegistros() {
++        return registros.getLongitud();
++}
+ 
+-    /**
+-     * Regresa una lista con los registros en la base de datos. Modificar esta
+-     * lista no cambia a la información en la base de datos.
+-     * @return una lista con los registros en la base de datos.
+-     */
+-    public Lista<R> getRegistros() {
+-        // Aquí va su código.
+-    }
++/**
++ * Regresa una lista con los registros en la base de datos. Modificar esta
++ * lista no cambia a la información en la base de datos.
++ * @return una lista con los registros en la base de datos.
++ */
++public Lista<R> getRegistros() {
++        return registros.copia();
++}
+ 
+-    /**
+-     * Agrega el registro recibido a la base de datos.
+-     * @param registro el registro que hay que agregar a la base de datos.
+-     */
+-    public void agregaRegistro(R registro) {
+-        // Aquí va su código.
+-    }
++/**
++ * Agrega el registro recibido a la base de datos.
++ * @param registro el registro que hay que agregar a la base de datos.
++ */
++public void agregaRegistro(R registro) {
++        registros.agregaFinal(registro);
++}
+ 
+-    /**
+-     * Elimina el registro recibido de la base de datos.
+-     * @param registro el registro que hay que eliminar de la base de datos.
+-     */
+-    public void eliminaRegistro(R registro) {
+-        // Aquí va su código.
+-    }
++/**
++ * Elimina el registro recibido de la base de datos.
++ * @param registro el registro que hay que eliminar de la base de datos.
++ */
++public void eliminaRegistro(R registro) {
++        registros.elimina(registro);
++}
+ 
+-    /**
+-     * Limpia la base de datos.
+-     */
+-    public void limpia() {
+-        // Aquí va su código.
+-    }
++/**
++ * Limpia la base de datos.
++ */
++public void limpia() {
++        registros.limpia();
++}
+ 
+-    /**
+-     * Guarda todos los registros en la base de datos en la salida recibida.
+-     * @param out la salida donde hay que guardar los registos.
+-     * @throws IOException si ocurre un error de entrada/salida.
+-     */
+-    public void guarda(BufferedWriter out) throws IOException {
+-        // Aquí va su código.
+-    }
++/**
++ * Guarda todos los registros en la base de datos en la salida recibida.
++ * @param out la salida donde hay que guardar los registos.
++ * @throws IOException si ocurre un error de entrada/salida.
++ */
++public void guarda(BufferedWriter out) throws IOException {
+ 
+-    /**
+-     * Carga los registros de la entrada recibida en la base de datos. Si antes
+-     * de llamar el método había registros en la base de datos, estos son
+-     * eliminados.
+-     * @param in la entrada de donde hay que cargar los registos.
+-     * @throws IOException si ocurre un error de entrada/salida.
+-     */
+-    public void carga(BufferedReader in) throws IOException {
+-        // Aquí va su código.
+-    }
++        try{
++                Lista<R>.Nodo n = registros.getCabeza();
++                while(n!=null) {
++                        R r =n.get();
++                        r.guarda(out);
++                        n=n.getSiguiente();
++                }
++        }catch (Exception e) {
++                throw  new IOException();
+ 
+-    /**
+-     * Busca registros por un campo específico.
+-     * @param campo el campo del registro por el cuál buscar.
+-     * @param valor el valor a buscar.
+-     * @return una lista con los registros tales que cazan el campo especificado
+-     *         con el valor dado.
+-     * @throws IllegalArgumentException si el campo no es de la enumeración
+-     *         correcta.
+-     */
+-    public Lista<R> buscaRegistros(C campo, Object valor) {
+-        // Aquí va su código.
+-    }
++        }
++}
+ 
+-    /**
+-     * Crea un registro en blanco.
+-     * @return un registro en blanco.
+-     */
+-    public abstract R creaRegistro();
++/**
++ * Carga los registros de la entrada recibida en la base de datos. Si antes
++ * de llamar el método había registros en la base de datos, estos son
++ * eliminados.
++ * @param in la entrada de donde hay que cargar los registos.
++ * @throws IOException si ocurre un error de entrada/salida.
++ */
++public void carga(BufferedReader in) throws IOException {
++        try{      registros.limpia();
++                  R r =creaRegistro();
++                  while(r.carga(in)) {
++                          agregaRegistro(r);
++                          r =creaRegistro();
++                  }}catch (Exception e) {
++                throw new IOException();
++        }
++}
++
++/**
++ * Busca registros por un campo específico.
++ * @param campo el campo del registro por el cuál buscar.
++ * @param valor el valor a buscar.
++ * @return una lista con los registros tales que cazan el campo especificado
++ *         con el valor dado.
++ * @throws IllegalArgumentException si el campo no es de la enumeración
++ *         correcta.
++ */
++public Lista<R> buscaRegistros(C campo, Object valor) {
++        if(!(campo instanceof CampoEstudiante)) {
++                throw new IllegalArgumentException();
++        }
++        else{
++                Lista<R> l = new Lista<R>();
++                Lista<R>.Nodo n = registros.getCabeza();
++                while(n!=null) {
++                        R r = n.get();
++                        if(r.caza(campo,valor))
++                                l.agregaFinal(r);
++                        n = n.getSiguiente();
++                }
++                return l;
++        }
++}
++
++/**
++ * Crea un registro en blanco.
++ * @return un registro en blanco.
++ */
++public abstract R creaRegistro();
+ }
+diff --git a/src/mx/unam/ciencias/icc/BaseDeDatosEstudiantes.java b/src/mx/unam/ciencias/icc/BaseDeDatosEstudiantes.java
+index 99253e8..ef9ea7c 100644
+--- a/src/mx/unam/ciencias/icc/BaseDeDatosEstudiantes.java
++++ b/src/mx/unam/ciencias/icc/BaseDeDatosEstudiantes.java
+@@ -3,14 +3,14 @@ package mx.unam.ciencias.icc;
+ /**
+  * Clase para bases de datos de estudiantes.
+  */
+-public class BaseDeDatosEstudiantes
+-    extends BaseDeDatos<Estudiante, CampoEstudiante> {
++public class BaseDeDatosEstudiantes extends BaseDeDatos<Estudiante,CampoEstudiante> {
+ 
+-    /**
+-     * Crea un estudiante en blanco.
+-     * @return un estudiante en blanco.
+-     */
+-    @Override public Estudiante creaRegistro() {
+-        // Aquí va su código.
+-    }
++/**
++ * Crea un estudiante en blanco.
++ * @return un estudiante en blanco.
++ */
++@Override public Estudiante creaRegistro() {
++        return new Estudiante(null,0,0.0,0);
++
++}
+ }
+diff --git a/src/mx/unam/ciencias/icc/CampoEstudiante.java b/src/mx/unam/ciencias/icc/CampoEstudiante.java
+index 4a8740d..7ce9de7 100644
+--- a/src/mx/unam/ciencias/icc/CampoEstudiante.java
++++ b/src/mx/unam/ciencias/icc/CampoEstudiante.java
+@@ -5,21 +5,30 @@ package mx.unam.ciencias.icc;
+  */
+ public enum CampoEstudiante {
+ 
+-    /** El nombre del estudiante. */
+-    NOMBRE,
+-    /** El número de cuenta del estudiante. */
+-    CUENTA,
+-    /** El promedio del estudiante. */
+-    PROMEDIO,
+-    /** La edad del estudiante. */
+-    EDAD;
++        /** El nombre del estudiante. */
++        NOMBRE,
++        /** El número de cuenta del estudiante. */
++        CUENTA,
++        /** El promedio del estudiante. */
++        PROMEDIO,
++        /** La edad del estudiante. */
++        EDAD;
+ 
+-    /**
+-     * Regresa una representación en cadena del campo para ser usada en
+-     * interfaces gráficas.
+-     * @return una representación en cadena del campo.
+-     */
+-    @Override public String toString() {
++        /**
++         * Regresa una representación en cadena del campo para ser usada en
++         * interfaces gráficas.
++         * @return una representación en cadena del campo.
++         */
++        @Override public String toString() {
++                switch(this) {
++                case NOMBRE: return "Nombre";
++                case CUENTA: return "# Cuenta";
++                case PROMEDIO: return "Promedio";
++                case EDAD: return "Edad";
++                default:
++                        throw new IllegalArgumentException();
++                }
++        }
+         // Aquí va su código.
+-    }
++
+ }
+diff --git a/src/mx/unam/ciencias/icc/Estudiante.java b/src/mx/unam/ciencias/icc/Estudiante.java
+index dbca0c2..083d1f4 100644
+--- a/src/mx/unam/ciencias/icc/Estudiante.java
++++ b/src/mx/unam/ciencias/icc/Estudiante.java
+@@ -14,164 +14,255 @@ import java.io.IOException;
+  */
+ public class Estudiante implements Registro<CampoEstudiante> {
+ 
+-    /* Nombre del estudiante. */
+-    private String nombre;
+-    /* Número de cuenta. */
+-    private int cuenta;
+-    /* Pormedio del estudiante. */
+-    private double promedio;
+-    /* Edad del estudiante.*/
+-    private int edad;
+-
+-    /**
+-     * Define el estado inicial de un estudiante.
+-     * @param nombre el nombre del estudiante.
+-     * @param cuenta el número de cuenta del estudiante.
+-     * @param promedio el promedio del estudiante.
+-     * @param edad la edad del estudiante.
+-     */
+-    public Estudiante(String nombre,
+-                      int    cuenta,
+-                      double promedio,
+-                      int    edad) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el nombre del estudiante.
+-     * @return el nombre del estudiante.
+-     */
+-    public String getNombre() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Define el nombre del estudiante.
+-     * @param nombre el nuevo nombre del estudiante.
+-     */
+-    public void setNombre(String nombre) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el número de cuenta del estudiante.
+-     * @return el número de cuenta del estudiante.
+-     */
+-    public int getCuenta() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Define el número cuenta del estudiante.
+-     * @param cuenta el nuevo número de cuenta del estudiante.
+-     */
+-    public void setCuenta(int cuenta) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el promedio del estudiante.
+-     * @return el promedio del estudiante.
+-     */
+-    public double getPromedio() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Define el promedio del estudiante.
+-     * @param promedio el nuevo promedio del estudiante.
+-     */
+-    public void setPromedio(double promedio) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa la edad del estudiante.
+-     * @return la edad del estudiante.
+-     */
+-    public int getEdad() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Define la edad del estudiante.
+-     * @param edad la nueva edad del estudiante.
+-     */
+-    public void setEdad(int edad) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa una representación en cadena del estudiante.
+-     * @return una representación en cadena del estudiante.
+-     */
+-    @Override public String toString() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Nos dice si el objeto recibido es un estudiante igual al que manda llamar
+-     * el método.
+-     * @param objeto el objeto con el que el estudiante se comparará.
+-     * @return <tt>true</tt> si el objeto recibido es un estudiante con las
+-     *         mismas propiedades que el objeto que manda llamar al método,
+-     *         <tt>false</tt> en otro caso.
+-     */
+-    @Override public boolean equals(Object objeto) {
++/* Nombre del estudiante. */
++private String nombre;
++/* Número de cuenta. */
++private int cuenta;
++/* Pormedio del estudiante. */
++private double promedio;
++/* Edad del estudiante.*/
++private int edad;
++
++/**
++ * Define el estado inicial de un estudiante.
++ * @param nombre el nombre del estudiante.
++ * @param cuenta el número de cuenta del estudiante.
++ * @param promedio el promedio del estudiante.
++ * @param edad la edad del estudiante.
++ */
++public Estudiante(String nombre,
++                  int cuenta,
++                  double promedio,
++                  int edad) {
++        this.nombre    = nombre;
++        this.cuenta=cuenta;
++        this.edad=edad;
++        this.promedio=promedio;
++}
++
++/**
++ * Regresa el nombre del estudiante.
++ * @return el nombre del estudiante.
++ */
++public String getNombre() {
++        return nombre;
++}
++
++/**
++ * Define el nombre del estudiante.
++ * @param nombre el nuevo nombre del estudiante.
++ */
++public void setNombre(String nombre) {
++        this.nombre=nombre;
++}
++
++/**
++ * Regresa el número de cuenta del estudiante.
++ * @return el número de cuenta del estudiante.
++ */
++public int getCuenta() {
++        return cuenta;
++}
++
++/**
++ * Define el número cuenta del estudiante.
++ * @param cuenta el nuevo número de cuenta del estudiante.
++ */
++public void setCuenta(int cuenta) {
++        this.cuenta=cuenta;
++}
++
++/**
++ * Regresa el promedio del estudiante.
++ * @return el promedio del estudiante.
++ */
++public double getPromedio() {
++        return promedio;
++}
++
++/**
++ * Define el promedio del estudiante.
++ * @param promedio el nuevo promedio del estudiante.
++ */
++public void setPromedio(double promedio) {
++        this.promedio=promedio;
++}
++
++/**
++ * Regresa la edad del estudiante.
++ * @return la edad del estudiante.
++ */
++public int getEdad() {
++        return edad;
++}
++
++/**
++ * Define la edad del estudiante.
++ * @param edad la nueva edad del estudiante.
++ */
++public void setEdad(int edad) {
++        this.edad=edad;
++}
++
++/**
++ * Regresa una representación en cadena del estudiante.
++ * @return una representación en cadena del estudiante.
++ */
++@Override public String toString() {
++        String cadena= String.format("Nombre   : %s\n" +
++                                     "Cuenta   : %09d\n" +
++                                     "Promedio : %2.2f\n" +
++                                     "Edad     : %d",this.nombre, this.cuenta, this.promedio, this.edad);
++        return cadena;
++}
++
++/**
++ * Nos dice si el objeto recibido es un estudiante igual al que manda llamar
++ * el método.
++ * @param objeto el objeto con el que el estudiante se comparará.
++ * @return <tt>true</tt> si el objeto recibido es un estudiante con las
++ *         mismas propiedades que el objeto que manda llamar al método,
++ *         <tt>false</tt> en otro caso.
++ */
++@Override public boolean equals(Object objeto) {
+         if (!(objeto instanceof Estudiante))
+-            return false;
++                return false;
+         Estudiante estudiante = (Estudiante)objeto;
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Guarda al estudiante en la salida recibida.
+-     * @param out la salida dónde hay que guardar al estudiante.
+-     * @throws IOException si un error de entrada/salida ocurre.
+-     */
+-    @Override public void guarda(BufferedWriter out) throws IOException {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Carga al estudiante de la entrada recibida.
+-     * @param in la entrada de dónde hay que cargar al estudiante.
+-     * @return <tt>true</tt> si el método carga un estudiante válido,
+-     *         <tt>false</tt> en otro caso.
+-     * @throws IOException si un error de entrada/salida ocurre, o si la entrada
+-     *         recibida no contiene a un estudiante.
+-     */
+-    @Override public boolean carga(BufferedReader in) throws IOException {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Nos dice si el estudiante caza el valor dado en el campo especificado.
+-     * @param campo el campo que hay que cazar.
+-     * @param valor el valor con el que debe cazar el campo del registro.
+-     * @return <tt>true</tt> si:
+-     *         <ul>
+-     *           <li><tt>campo</tt> es {@link CampoEstudiante#NOMBRE} y
+-     *              <tt>valor</tt> es instancia de {@link String} y es una
+-     *              subcadena del nombre del estudiante.</li>
+-     *           <li><tt>campo</tt> es {@link CampoEstudiante#CUENTA} y
+-     *              <tt>valor</tt> es instancia de {@link Integer} y su
+-     *              valor entero es mayor o igual a la cuenta del
+-     *              estudiante.</li>
+-     *           <li><tt>campo</tt> es {@link CampoEstudiante#PROMEDIO} y
+-     *              <tt>valor</tt> es instancia de {@link Double} y su
+-     *              valor doble es mayor o igual al promedio del
+-     *              estudiante.</li>
+-     *           <li><tt>campo</tt> es {@link CampoEstudiante#EDAD} y
+-     *              <tt>valor</tt> es instancia de {@link Integer} y su
+-     *              valor entero es mayor o igual a la edad del
+-     *              estudiante.</li>
+-     *         </ul>
+-     *         <tt>false</tt> en otro caso.
+-     * @throws IllegalArgumentException si el campo no es instancia de
+-     *         {@link CampoEstudiante}.
+-     */
+-    public boolean caza(CampoEstudiante campo, Object valor) {
+-        // Aquí va su código.
+-    }
++        if (estudiante == null)
++                return false;
++
++        if( !this.nombre.equals(estudiante.nombre))
++                return false;
++
++        if(this.cuenta != estudiante.cuenta)
++                return false;
++
++        if( this.promedio != estudiante.promedio )
++                return false;
++
++        if(this.edad != estudiante.edad)
++                return false;
++        return true;
++}
++
++/**
++ * Guarda al estudiante en la salida recibida.
++ * @param out la salida dónde hay que guardar al estudiante.
++ * @throws IOException si un error de entrada/salida ocurre.
++ */
++@Override public void guarda(BufferedWriter out) throws IOException {
++        try{
++
++                out.write(String.format("%s\t%d\t%2.2f\t%d\n",nombre,cuenta,promedio,edad));
++        }
++        catch(IOException e ) {
++
++                throw new IOException();
++        }
++}
++
++/**
++ * Carga al estudiante de la entrada recibida.
++ * @param in la entrada de dónde hay que cargar al estudiante.
++ * @return <tt>true</tt> si el método carga un estudiante válido,
++ *         <tt>false</tt> en otro caso.
++ * @throws IOException si un error de entrada/salida ocurre, o si la entrada
++ *         recibida no contiene a un estudiante.
++ */
++@Override public boolean carga(BufferedReader in) throws IOException {
++        try{
++                String s = in.readLine();
++                if(s == null) {
++                        return false;
++                }
++                String[] values=s.split("\t");
++
++                if(values.length != 4) {
++                        throw  new IOException();
++                }
++                this.nombre=values[0];
++                this.cuenta =Integer.parseInt(values[1]);
++                this.promedio=Double.parseDouble(values[2]);
++                this.edad=Integer.parseInt(values[3]);
++                return true;
++        } catch (Exception e) {
++                throw new IOException();
++
++        }
++}
++
++/**
++ * Nos dice si el estudiante caza el valor dado en el campo especificado.
++ * @param campo el campo que hay que cazar.
++ * @param valor el valor con el que debe cazar el campo del registro.
++ * @return <tt>true</tt> si:
++ *         <ul>
++ *           <li><tt>campo</tt> es {@link CampoEstudiante#NOMBRE} y
++ *              <tt>valor</tt> es instancia de {@link String} y es una
++ *              subcadena del nombre del estudiante.</li>
++ *           <li><tt>campo</tt> es {@link CampoEstudiante#CUENTA} y
++ *              <tt>valor</tt> es instancia de {@link Integer} y su
++ *              valor entero es mayor o igual a la cuenta del
++ *              estudiante.</li>
++ *           <li><tt>campo</tt> es {@link CampoEstudiante#PROMEDIO} y
++ *              <tt>valor</tt> es instancia de {@link Double} y su
++ *              valor doble es mayor o igual al promedio del
++ *              estudiante.</li>
++ *           <li><tt>campo</tt> es {@link CampoEstudiante#EDAD} y
++ *              <tt>valor</tt> es instancia de {@link Integer} y su
++ *              valor entero es mayor o igual a la edad del
++ *              estudiante.</li>
++ *         </ul>
++ *         <tt>false</tt> en otro caso.
++ * @throws IllegalArgumentException si el campo no es instancia de
++ *         {@link CampoEstudiante}.
++ */
++public boolean caza(CampoEstudiante campo, Object valor) {
++        if(!(campo instanceof CampoEstudiante))
++                throw new IllegalArgumentException();
++        CampoEstudiante ce =(CampoEstudiante)campo;
++        switch(ce) {
++        case NOMBRE: return cazaNombre(valor);
++        case CUENTA: return cazaCuenta(valor);
++        case PROMEDIO: return cazaPromedio(valor);
++        case EDAD: return cazaEdad(valor);
++        }
++        return true;
++}
++
++private boolean cazaNombre(Object valor){
++        if(!(valor instanceof String ))
++                return false;
++        String s = (String) valor;
++        if(s.isEmpty())
++                return false;
++        return nombre.indexOf(s)!=-1;
++}
++
++private boolean cazaCuenta(Object valor){
++        if(!(valor instanceof Integer ))
++                return false;
++        Integer v =(Integer)valor;
++        return cuenta >=v.intValue();
++
++}
++
++
++private boolean cazaPromedio(Object valor){
++        if(!(valor instanceof Double ))
++                return false;
++        Double v =(Double)valor;
++        return promedio >=v.doubleValue();
++
++}
++
++
++private boolean cazaEdad(Object valor){
++        if(!(valor instanceof Integer ))
++                return false;
++        Integer v =(Integer)valor;
++        return edad >=v.intValue();
++
++}
++
+ }
+diff --git a/src/mx/unam/ciencias/icc/Lista.java b/src/mx/unam/ciencias/icc/Lista.java
+index 9a65b00..8f64bcc 100644
+--- a/src/mx/unam/ciencias/icc/Lista.java
++++ b/src/mx/unam/ciencias/icc/Lista.java
+@@ -16,244 +16,417 @@ import java.util.NoSuchElementException;
+  */
+ public class Lista<T> {
+ 
+-    /**
+-     * Clase interna para nodos.
+-     */
+-    public class Nodo {
+-
+-        /* El elemento del nodo. */
+-        private T elemento;
+-        /* El nodo anterior. */
+-        private Nodo anterior;
+-        /* El nodo siguiente. */
+-        private Nodo siguiente;
+-
+-        /* Construye un nodo con un elemento. */
+-        private Nodo(T elemento) {
+-            // Aquí va su código.
++/**
++ * Clase interna para nodos.
++ */
++public class Nodo {
++
++/* El elemento del nodo. */
++private T elemento;
++/* El nodo anterior. */
++private Nodo anterior;
++/* El nodo siguiente. */
++private Nodo siguiente;
++
++/* Construye un nodo con un elemento. */
++private Nodo(T elemento) {
++        this.elemento=elemento;
++}
++
++/**
++ * Regresa el nodo anterior del nodo.
++ * @return el nodo anterior del nodo.
++ */
++public Nodo getAnterior() {
++        return anterior;
++}
++
++/**
++ * Regresa el nodo siguiente del nodo.
++ * @return el nodo siguiente del nodo.
++ */
++public Nodo getSiguiente() {
++        return siguiente;
++}
++
++/**
++ * Regresa el elemento del nodo.
++ * @return el elemento del nodo.
++ */
++public T get() {
++        return elemento;
++
++}
++}
++
++/* Primer elemento de la lista. */
++private Nodo cabeza;
++/* Último elemento de la lista. */
++private Nodo rabo;
++/* Número de elementos en la lista. */
++private int longitud;
++
++/**
++ * Regresa la longitud de la lista.
++ * @return la longitud de la lista, el número de elementos que contiene.
++ */
++public int getLongitud() {
++        return longitud;
++}
++
++/**
++ * Nos dice si la lista es vacía.
++ * @return <code>true</code> si la lista es vacía, <code>false</code> en
++ *         otro caso.
++ */
++public boolean esVacia() {
++        return cabeza==null;
++}
++
++/**
++ * Agrega un elemento al final de la lista. Si la lista no tiene elementos,
++ * el elemento a agregar será el primero y último.
++ * @param elemento el elemento a agregar.
++ * @throws IllegalArgumentException si <code>elemento</code> es
++ *         <code>null</code>.
++ */
++public void agregaFinal(T elemento) {
++        if(elemento == null)
++                throw new IllegalArgumentException();
++        Nodo n = new Nodo(elemento);
++        longitud++;
++        if(rabo == null)
++                cabeza = rabo = n;
++        else{
++                rabo.siguiente = n;
++                n.anterior = rabo;
++                rabo = n;
+         }
+ 
+-        /**
+-         * Regresa el nodo anterior del nodo.
+-         * @return el nodo anterior del nodo.
+-         */
+-        public Nodo getAnterior() {
+-            // Aquí va su código.
++}
++
++/**
++ * Agrega un elemento al inicio de la lista. Si la lista no tiene elementos,
++ * el elemento a agregar será el primero y último.
++ * @param elemento el elemento a agregar.
++ * @throws IllegalArgumentException si <code>elemento</code> es
++ *         <code>null</code>.
++ */
++public void agregaInicio(T elemento) {
++        if(elemento == null)
++                throw new IllegalArgumentException();
++        Nodo n = new Nodo(elemento);
++        longitud++;
++        if(cabeza == null)
++                cabeza = rabo = n;
++        else{
++                cabeza.anterior = n;
++                n.siguiente = cabeza;
++                cabeza = n;
+         }
++}
+ 
+-        /**
+-         * Regresa el nodo siguiente del nodo.
+-         * @return el nodo siguiente del nodo.
+-         */
+-        public Nodo getSiguiente() {
+-            // Aquí va su código.
++/**
++ * Inserta un elemento en un índice explícito.
++ *
++ * Si el índice es menor o igual que cero, el elemento se agrega al inicio
++ * de la lista. Si el índice es mayor o igual que el número de elementos en
++ * la lista, el elemento se agrega al fina de la misma. En otro caso,
++ * después de mandar llamar el método, el elemento tendrá el índice que se
++ * especifica en la lista.
++ * @param i el índice dónde insertar el elemento. Si es menor que 0 el
++ *          elemento se agrega al inicio de la lista, y si es mayor o igual
++ *          que el número de elementos en la lista se agrega al final.
++ * @param elemento el elemento a insertar.
++ * @throws IllegalArgumentException si <code>elemento</code> es
++ *         <code>null</code>.
++ */
++public void inserta(int i, T elemento) {
++        if(elemento == null)
++                throw new IllegalArgumentException();
++        else if(i <= 0) {
++                agregaInicio(elemento);
++        }
++        else if(i >= this.longitud) {
++                agregaFinal(elemento);
++        }
++        else{
++                Nodo n = new Nodo(elemento);
++                Nodo c = cabeza;
++                while(i-- > 1)
++                        c = c.siguiente;
++                n.anterior = c;
++                n.siguiente = c.siguiente;
++                c.siguiente.anterior = n;
++                c.siguiente = n;
++                longitud++;
++        }
++
++}
++
++/**
++ * Elimina un elemento de la lista. Si el elemento no está contenido en la
++ * lista, el método no la modifica.
++ * @param elemento el elemento a eliminar.
++ */
++
++
++private Nodo buscaNodo( T elemento, Nodo n){
++        while(n != null) {
++                if(n.elemento.equals(elemento))
++                        return n;
++                n = n.siguiente;
+         }
++        return null;
++}
+ 
+-        /**
+-         * Regresa el elemento del nodo.
+-         * @return el elemento del nodo.
+-         */
+-        public T get() {
+-            // Aquí va su código.
++public void elimina(T elemento) {
++        if(cabeza==null) {
++                return;
+         }
+-    }
+-
+-    /* Primer elemento de la lista. */
+-    private Nodo cabeza;
+-    /* Último elemento de la lista. */
+-    private Nodo rabo;
+-    /* Número de elementos en la lista. */
+-    private int longitud;
+-
+-    /**
+-     * Regresa la longitud de la lista.
+-     * @return la longitud de la lista, el número de elementos que contiene.
+-     */
+-    public int getLongitud() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Nos dice si la lista es vacía.
+-     * @return <code>true</code> si la lista es vacía, <code>false</code> en
+-     *         otro caso.
+-     */
+-    public boolean esVacia() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Agrega un elemento al final de la lista. Si la lista no tiene elementos,
+-     * el elemento a agregar será el primero y último.
+-     * @param elemento el elemento a agregar.
+-     * @throws IllegalArgumentException si <code>elemento</code> es
+-     *         <code>null</code>.
+-     */
+-    public void agregaFinal(T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Agrega un elemento al inicio de la lista. Si la lista no tiene elementos,
+-     * el elemento a agregar será el primero y último.
+-     * @param elemento el elemento a agregar.
+-     * @throws IllegalArgumentException si <code>elemento</code> es
+-     *         <code>null</code>.
+-     */
+-    public void agregaInicio(T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Inserta un elemento en un índice explícito.
+-     *
+-     * Si el índice es menor o igual que cero, el elemento se agrega al inicio
+-     * de la lista. Si el índice es mayor o igual que el número de elementos en
+-     * la lista, el elemento se agrega al fina de la misma. En otro caso,
+-     * después de mandar llamar el método, el elemento tendrá el índice que se
+-     * especifica en la lista.
+-     * @param i el índice dónde insertar el elemento. Si es menor que 0 el
+-     *          elemento se agrega al inicio de la lista, y si es mayor o igual
+-     *          que el número de elementos en la lista se agrega al final.
+-     * @param elemento el elemento a insertar.
+-     * @throws IllegalArgumentException si <code>elemento</code> es
+-     *         <code>null</code>.
+-     */
+-    public void inserta(int i, T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Elimina un elemento de la lista. Si el elemento no está contenido en la
+-     * lista, el método no la modifica.
+-     * @param elemento el elemento a eliminar.
+-     */
+-    public void elimina(T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Elimina el primer elemento de la lista y lo regresa.
+-     * @return el primer elemento de la lista antes de eliminarlo.
+-     * @throws NoSuchElementException si la lista es vacía.
+-     */
+-    public T eliminaPrimero() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Elimina el último elemento de la lista y lo regresa.
+-     * @return el último elemento de la lista antes de eliminarlo.
+-     * @throws NoSuchElementException si la lista es vacía.
+-     */
+-    public T eliminaUltimo() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Nos dice si un elemento está en la lista.
+-     * @param elemento el elemento que queremos saber si está en la lista.
+-     * @return <tt>true</tt> si <tt>elemento</tt> está en la lista,
+-     *         <tt>false</tt> en otro caso.
+-     */
+-    public boolean contiene(T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa la reversa de la lista.
+-     * @return una nueva lista que es la reversa la que manda llamar el método.
+-     */
+-    public Lista<T> reversa() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa una copia de la lista. La copia tiene los mismos elementos que la
+-     * lista que manda llamar el método, en el mismo orden.
+-     * @return una copiad de la lista.
+-     */
+-    public Lista<T> copia() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Limpia la lista de elementos, dejándola vacía.
+-     */
+-    public void limpia() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el primer elemento de la lista.
+-     * @return el primer elemento de la lista.
+-     * @throws NoSuchElementException si la lista es vacía.
+-     */
+-    public T getPrimero() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el último elemento de la lista.
+-     * @return el primer elemento de la lista.
+-     * @throws NoSuchElementException si la lista es vacía.
+-     */
+-    public T getUltimo() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el <em>i</em>-ésimo elemento de la lista.
+-     * @param i el índice del elemento que queremos.
+-     * @return el <em>i</em>-ésimo elemento de la lista.
+-     * @throws ExcepcionIndiceInvalido si <em>i</em> es menor que cero o mayor o
+-     *         igual que el número de elementos en la lista.
+-     */
+-    public T get(int i) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el índice del elemento recibido en la lista.
+-     * @param elemento el elemento del que se busca el índice.
+-     * @return el índice del elemento recibido en la lista, o -1 si el elemento
+-     *         no está contenido en la lista.
+-     */
+-    public int indiceDe(T elemento) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa una representación en cadena de la lista.
+-     * @return una representación en cadena de la lista.
+-     */
+-    @Override public String toString() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Nos dice si la lista es igual al objeto recibido.
+-     * @param objeto el objeto con el que hay que comparar.
+-     * @return <tt>true</tt> si la lista es igual al objeto recibido;
+-     *         <tt>false</tt> en otro caso.
+-     */
+-    @Override public boolean equals(Object objeto) {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el nodo cabeza de la lista.
+-     * @return el nodo cabeza de la lista.
+-     */
+-    public Nodo getCabeza() {
+-        // Aquí va su código.
+-    }
+-
+-    /**
+-     * Regresa el nodo rabo de la lista.
+-     * @return el nodo rabo de la lista.
+-     */
+-    public Nodo getRabo() {
+-        // Aquí va su código.
+-    }
++        Nodo prueba = cabeza;
++        Nodo r = this.buscaNodo(elemento,prueba);
++
++        if(r==cabeza) {
++                this.eliminaPrimero();
++
++        }
++        else if(r==rabo) {
++                this.eliminaUltimo();
++
++        }
++        else{
++                r.siguiente.anterior=r.anterior;
++                r.anterior.siguiente=r.siguiente;
++                longitud--;
++        }
++
++}
++
++/**
++ * Elimina el primer elemento de la lista y lo regresa.
++ * @return el primer elemento de la lista antes de eliminarlo.
++ * @throws NoSuchElementException si la lista es vacía.
++ */
++public T eliminaPrimero() {
++        if(cabeza == null)
++                throw new NoSuchElementException();
++        T r = cabeza.elemento;
++        if(longitud == 1) {
++                longitud--;
++                cabeza=rabo=null;
++        }
++        else{
++                cabeza = cabeza.siguiente;
++                cabeza.anterior = null;
++                longitud--;
++        }
++        return r;
++
++}
++
++/**
++ * Elimina el último elemento de la lista y lo regresa.
++ * @return el último elemento de la lista antes de eliminarlo.
++ * @throws NoSuchElementException si la lista es vacía.
++ */
++public T eliminaUltimo() {
++        if(rabo == null)
++                throw new NoSuchElementException();
++        T r = rabo.elemento;
++
++        if(longitud == 1) {
++                cabeza = rabo = null;
++                //longitud = 0;
++                longitud--;
++        }else{
++                rabo = rabo.anterior;
++                rabo.siguiente = null;
++                longitud--;
++        }
++        return r;
++}
++
++/**
++ * Nos dice si un elemento está en la lista.
++ * @param elemento el elemento que queremos saber si está en la lista.
++ * @return <tt>true</tt> si <tt>elemento</tt> está en la lista,
++ *         <tt>false</tt> en otro caso.
++ */
++public boolean contiene(T elemento) {
++        Nodo n = cabeza;
++        while(n != null) {
++                if(n.elemento.equals(elemento))
++                        return true;
++                n = n.siguiente;
++        }
++        return false;
++
++
++}
++
++/**
++ * Regresa la reversa de la lista.
++ * @return una nueva lista que es la reversa la que manda llamar el método.
++ */
++public Lista<T> reversa() {
++        Lista<T> r = new Lista<T>();
++        Nodo n = rabo;
++        while(n != null) {
++                r.agregaFinal(n.elemento);
++                n = n.anterior;
++        }
++        return r;
++
++}
++
++/**
++ * Regresa una copia de la lista. La copia tiene los mismos elementos que la
++ * lista que manda llamar el método, en el mismo orden.
++ * @return una copiad de la lista.
++ */
++public Lista<T> copia() {
++
++        Lista<T> r = new Lista<T>();
++        Nodo n = cabeza;
++        while(n != null) {
++                r.agregaFinal(n.elemento);
++                n = n.siguiente;
++        }
++        return r;
++}
++
++/**
++ * Limpia la lista de elementos, dejándola vacía.
++ */
++public void limpia() {
++        cabeza = rabo = null;
++        longitud = 0;
++}
++
++/**
++ * Regresa el primer elemento de la lista.
++ * @return el primer elemento de la lista.
++ * @throws NoSuchElementException si la lista es vacía.
++ */
++public T getPrimero() {
++        if(cabeza == null)
++                throw new NoSuchElementException();
++        return cabeza.elemento;
++
++}
++
++/**
++ * Regresa el último elemento de la lista.
++ * @return el primer elemento de la lista.
++ * @throws NoSuchElementException si la lista es vacía.
++ */
++public T getUltimo() {
++        if(cabeza == null)
++                throw new NoSuchElementException();
++        return rabo.elemento;
++
++}
++
++/**
++ * Regresa el <em>i</em>-ésimo elemento de la lista.
++ * @param i el índice del elemento que queremos.
++ * @return el <em>i</em>-ésimo elemento de la lista.
++ * @throws ExcepcionIndiceInvalido si <em>i</em> es menor que cero o mayor o
++ *         igual que el número de elementos en la lista.
++ */
++public T get(int i) {
++        if(i < 0 || i >= longitud)
++                throw new ExcepcionIndiceInvalido();
++        Nodo n = cabeza;
++        int c = 0;
++        while(c++ < i)
++                n = n.siguiente;
++        return n.elemento;
++}
++
++/**
++ * Regresa el índice del elemento recibido en la lista.
++ * @param elemento el elemento del que se busca el índice.
++ * @return el índice del elemento recibido en la lista, o -1 si el elemento
++ *         no está contenido en la lista.
++ */
++public int indiceDe(T elemento) {
++        int r = 0;
++        Nodo n = cabeza;
++        while(n != null) {
++                if(n.elemento.equals(elemento))
++                        return r;
++                n = n.siguiente;
++                r++;
++        }
++        return -1;
++
++}
++
++/**
++ * Regresa una representación en cadena de la lista.
++ * @return una representación en cadena de la lista.
++ */
++@Override public String toString() {
++        if(cabeza == null)
++                return "[]";
++        String r = "[" + cabeza.elemento.toString();
++        Nodo n = cabeza.siguiente;
++        while(n != null) {
++                r += ", " + n.elemento.toString();
++                n = n.siguiente;
++        }
++        return r + "]";
++
++}
++
++/**
++ * Nos dice si la lista es igual al objeto recibido.
++ * @param objeto el objeto con el que hay que comparar.
++ * @return <tt>true</tt> si la lista es igual al objeto recibido;
++ *         <tt>false</tt> en otro caso.
++ */
++
++@Override public boolean equals(Object objeto) {
++        if (objeto == null || getClass() != objeto.getClass())
++                return false;
++        @SuppressWarnings("unchecked") Lista<T> lista = (Lista<T>)objeto;
++        if(lista == null || longitud != lista.longitud)
++                return false;
++
++        Nodo n = cabeza;
++        Nodo n1 = lista.cabeza;
++        while(n!=null) {
++
++                if(n.elemento.equals(n1.elemento))
++                { n=n.siguiente;
++                  n1=n1.siguiente;}
++                else{
++                        return false;
++                }
++        }
++        return true;
++
++}
++
++
++
++
++
++/**
++ * Regresa el nodo cabeza de la lista.
++ * @return el nodo cabeza de la lista.
++ */
++public Nodo getCabeza() {
++        return cabeza;
++}
++
++/**
++ * Regresa el nodo rabo de la lista.
++ * @return el nodo rabo de la lista.
++ */
++public Nodo getRabo() {
++        return rabo;
++}
+ }
